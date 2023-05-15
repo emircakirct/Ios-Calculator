@@ -1,48 +1,93 @@
-let input = document.getElementById("number");
-let button = document.getElementById("generate");
-let luckyNumber = document.getElementById("lucky-numbers");
-let textLuck = document.getElementById("good-luck");
+let buttonsContainer = document.querySelector(".buttons-container");
+let secondayDis = document.querySelector(".secondary-display");
+let primaryDis = document.querySelector(".primary-display input");
+let operator = "";
+let number1 = "";
+let number2 = "";
+let result;
 
-let myNumber = ()=>{
-    return (Math.floor(Math.random()*99+1));    
-} 
 
-let firstSix = () => {
-let list = []
-while (list.length < 6) {
-    let number = myNumber()
-    if (!list.includes(number)) {
-        list.push(number);        
-    }         
-}
-return list.sort(); 
-}
+buttonsContainer.addEventListener('click', (t) => {
 
-let superStar = ()=> myNumber(); 
-let joker = () => myNumber(); 
+    if (t.target.classList.contains("number")) {
+        if (operator.length === 0) {
+            number1 += t.target.innerHTML;
+            secondayDis.innerHTML = number1;
+            primaryDis.value = number1;
 
-while (firstSix().includes(joker)) {
-    joker = myNumber();
-}
+        } else {
+            number2 += t.target.innerHTML;
+            secondayDis.innerHTML = `${number1} ${operator} ${number2}`; 
+            primaryDis.value = generalCalc(number1, number2, operator);
 
-button.addEventListener("click", ()=>{
-    Number(input.value) < 1
-    if (Number(input.value) < 1 || Number(input.value) > 8) {
-        alert('Please enter a number between 1 to 8')
-        input.value= ""
-        
-    }else{
-        luckyNumber.innerHTML = ""
-        textLuck.innerHTML = ""
-        for (let i = 0; i < input.value; i++) {
-            let newP = document.createElement("p");
-            let newText = `${firstSix().join(" - ")}  |  ${joker()}  |  ${superStar()}`
-            newP.innerText = newText
-            luckyNumber.appendChild(newP);
-        } 
-        let newP2 = document.createElement("p");
-        let newText2 = `GOOD LUCK`
-        newP2.innerText = newText2
-        textLuck.appendChild(newP2)
+        }
+
     }
-    });
+
+    if ((t.target.classList.contains("operator") || (t.target.classList.contains("percent"))) && !t.target.classList.contains("equal")) {
+
+        if (operator.length !== 0) {
+            result = generalCalc(number1, number2, operator);
+            number1 = result;
+            number2 = "";
+            operator = "";
+        }
+        operator = t.target.innerHTML;
+        if (t.target.innerHTML === "x" || t.target.innerHTML === "÷" || t.target.innerHTML === "%") {
+            secondayDis.innerHTML = `(${secondayDis.innerHTML})`; 
+        }
+        secondayDis.innerHTML += ` ${operator}`;
+        primaryDis.value = "";
+    }
+
+  
+    if (t.target.classList.contains("ac") || t.target.classList.contains("pm") || t.target.classList.contains("equal")) {
+        operator = "";
+
+        switch (t.target.innerHTML) {
+            case "AC":
+                number1 = "";
+                number2 = "";
+                secondayDis.innerHTML = "";
+                primaryDis.value = "";
+                break;
+            case "=":
+                number1 = primaryDis.value;
+                number2 = "";
+                secondayDis.innerHTML = `${number1}`;
+                primaryDis.value = `${number1}`;
+                number2 = "";
+                break;
+            case "±":
+                number1 = -Number(primaryDis.value);
+                number2 = "";
+                secondayDis.innerHTML = `${number1}`;
+                primaryDis.value = `${number1}`;
+                number2 = "";
+                break;
+            default:
+                break;
+        }
+    }
+
+});
+
+let generalCalc = (number1, number2, operator) =>{
+    number1 = Number(number1);
+    number2 = Number(number2);
+
+    switch (operator) {
+        case "+":
+            return number1 + number2;
+        case "-":
+            return number1 - number2;
+        case "x":
+            return number1 * number2;
+        case "÷":
+            return number1 / number2;
+        case "%":
+            return number1 % number2;
+        default:
+            return;
+    }
+}
